@@ -228,28 +228,19 @@ def _get_dataset_processor(
 
 # 首先定义清洗函数
 def clean_dataset(example):
-    images = example.get("images", [])
-    conversations = example["conversations"]
+    image = example.get("image", [])
+    user_message = example["question"]
     
     # 检查用户消息并添加占位符
-    if images:  # 有图像时才处理
-        user_messages = [msg for msg in conversations if msg["role"] == "user"]
-        if user_messages:
+    if image:  # 有图像时才处理
+        if user_message:
             # 只处理第一个用户消息
-            user_msg = user_messages[0]
-            content = user_msg["content"]
+            content = user_message
             
             # 处理字符串格式
             if isinstance(content, str):
                 if "<image>" not in content:
-                    user_msg["content"] = "<image> " + content
-            
-            # 处理列表格式（多模态输入）
-            elif isinstance(content, list):
-                has_image_element = any(item["type"] == "image" for item in content)
-                if not has_image_element:
-                    # 在开头添加图像占位符
-                    user_msg["content"] = [{"type": "image"}] + content
+                    example["question"] = "<image> " + content
     
     return example
 
