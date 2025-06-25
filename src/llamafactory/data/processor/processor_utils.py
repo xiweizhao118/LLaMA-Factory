@@ -37,7 +37,55 @@ class DatasetProcessor(ABC):
     @abstractmethod
     def preprocess_dataset(self, examples: dict[str, list[Any]]) -> dict[str, list[Any]]:
         r"""Build model inputs from the examples."""
-        ...
+        # 获取批量数据
+        conversations = examples["conversations"]
+        images_list = examples["images"]
+        
+        # 存储处理后的数据
+        processed_batch = {
+            "input_ids": [],
+            "attention_mask": [],
+            # 其他需要处理的字段...
+            "valid_flag": []  # 用于标记有效样本
+        }
+
+        # 遍历批次中的每个样本
+        for conv, images in zip(conversations, images_list):
+            valid_sample = True  # 初始假设样本有效
+            
+            # 1. 统计<image>占位符数量
+            image_token_count = 0
+            for turn in conv:
+                content = turn["content"]
+                if isinstance(content, str):
+                    image_token_count += content.count("<image>")
+                elif isinstance(content, list):
+                    for item in content:
+                        if item["type"] == "text":
+                            image_token_count += item["text"].count("<image>")
+                        elif item["type"] == "image":
+                            image_token_count += 1  # 直接图像项也视为占位符
+            
+            # 2. 验证图像数量与占位符数量
+            if image_token_count != len(images):
+                valid_sample = False
+            
+            # 3. 仅处理有效样本
+            if valid_sample:
+                # 原有处理逻辑（根据你的实际代码实现）
+                # 例如：processed = self.tokenizer(conv, ...)
+                # processed_batch["input_ids"].append(processed["input_ids"])
+                # ...
+                processed_batch["valid_flag"].append(True)
+            else:
+                # 对于无效样本，添加空值并标记
+                processed_batch["valid_flag"].append(False)
+                # 添加空值以保持批次结构
+                for key in processed_batch:
+                    if key not in ["valid_flag"] and key in self.expected_outputs:
+                        processed_batch[key].append([])  # 或适当空值
+        
+        return processed_batch
 
     @abstractmethod
     def print_data_example(self, example: dict[str, list[int]]) -> None:
