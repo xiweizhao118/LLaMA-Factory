@@ -37,37 +37,7 @@ class DatasetProcessor(ABC):
     @abstractmethod
     def preprocess_dataset(self, examples: dict[str, list[Any]]) -> dict[str, list[Any]]:
         r"""Build model inputs from the examples."""
-        # 获取批量数据
-        conversations = examples["conversations"]
-        images_list = examples["images"]
-        
-        # 处理每个样本
-        for i in range(len(conversations)):
-            conv = conversations[i]
-            images = images_list[i]
-            
-            # 仅当有图像时才处理
-            if images:
-                # 查找用户消息（通常是第一条）
-                for turn in conv:
-                    if turn["role"] == "user":
-                        content = turn["content"]
-                        
-                        # 检查是否已有<image>占位符
-                        if isinstance(content, str):
-                            if "<image>" not in content:
-                                # 在开头添加<image>占位符
-                                turn["content"] = "<image> " + content
-                        elif isinstance(content, list):
-                            # 检查是否已有图像类型元素
-                            has_image_element = any(item["type"] == "image" for item in content)
-                            if not has_image_element:
-                                # 在开头添加图像类型元素
-                                turn["content"] = [{"type": "image"}] + content
-                        break  # 处理第一个用户消息后退出
-        
-        # 原有处理逻辑（分词等）
-        return super().preprocess_dataset(examples)
+        ...
 
     @abstractmethod
     def print_data_example(self, example: dict[str, list[int]]) -> None:

@@ -226,6 +226,32 @@ def _get_dataset_processor(
 
     return dataset_processor_class(template=template, tokenizer=tokenizer, processor=processor, data_args=data_args)
 
+# 首先定义清洗函数
+def clean_dataset(example):
+    images = example.get("images", [])
+    conversations = example["conversations"]
+    
+    # 检查用户消息并添加占位符
+    if images:  # 有图像时才处理
+        user_messages = [msg for msg in conversations if msg["role"] == "user"]
+        if user_messages:
+            # 只处理第一个用户消息
+            user_msg = user_messages[0]
+            content = user_msg["content"]
+            
+            # 处理字符串格式
+            if isinstance(content, str):
+                if "<image>" not in content:
+                    user_msg["content"] = "<image> " + content
+            
+            # 处理列表格式（多模态输入）
+            elif isinstance(content, list):
+                has_image_element = any(item["type"] == "image" for item in content)
+                if not has_image_element:
+                    # 在开头添加图像占位符
+                    user_msg["content"] = [{"type": "image"}] + content
+    
+    return example
 
 def _get_preprocessed_dataset(
     dataset: Optional[Union["Dataset", "IterableDataset"]],
@@ -252,6 +278,13 @@ def _get_preprocessed_dataset(
             load_from_cache_file=(not data_args.overwrite_cache) or (training_args.local_process_index != 0),
             desc="Running tokenizer on dataset",
         )
+    
+    # 在原始数据集上应用清洗
+    dataset = dataset.map(
+        clean_dataset,
+        num_proc=data_args.preprocessing_num_workers,
+        desc="Adding missing <image> placeholders"
+    )
 
     dataset = dataset.map(
         dataset_processor.preprocess_dataset,
