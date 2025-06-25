@@ -41,51 +41,33 @@ class DatasetProcessor(ABC):
         conversations = examples["conversations"]
         images_list = examples["images"]
         
-        # 存储处理后的数据
-        processed_batch = {
-            "input_ids": [],
-            "attention_mask": [],
-            # 其他需要处理的字段...
-            "valid_flag": []  # 用于标记有效样本
-        }
-
-        # 遍历批次中的每个样本
-        for conv, images in zip(conversations, images_list):
-            valid_sample = True  # 初始假设样本有效
+        # 处理每个样本
+        for i in range(len(conversations)):
+            conv = conversations[i]
+            images = images_list[i]
             
-            # 1. 统计<image>占位符数量
-            image_token_count = 0
-            for turn in conv:
-                content = turn["content"]
-                if isinstance(content, str):
-                    image_token_count += content.count("<image>")
-                elif isinstance(content, list):
-                    for item in content:
-                        if item["type"] == "text":
-                            image_token_count += item["text"].count("<image>")
-                        elif item["type"] == "image":
-                            image_token_count += 1  # 直接图像项也视为占位符
-            
-            # 2. 验证图像数量与占位符数量
-            if image_token_count != len(images):
-                valid_sample = False
-            
-            # 3. 仅处理有效样本
-            if valid_sample:
-                # 原有处理逻辑（根据你的实际代码实现）
-                # 例如：processed = self.tokenizer(conv, ...)
-                # processed_batch["input_ids"].append(processed["input_ids"])
-                # ...
-                processed_batch["valid_flag"].append(True)
-            else:
-                # 对于无效样本，添加空值并标记
-                processed_batch["valid_flag"].append(False)
-                # 添加空值以保持批次结构
-                for key in processed_batch:
-                    if key not in ["valid_flag"] and key in self.expected_outputs:
-                        processed_batch[key].append([])  # 或适当空值
+            # 仅当有图像时才处理
+            if images:
+                # 查找用户消息（通常是第一条）
+                for turn in conv:
+                    if turn["role"] == "user":
+                        content = turn["content"]
+                        
+                        # 检查是否已有<image>占位符
+                        if isinstance(content, str):
+                            if "<image>" not in content:
+                                # 在开头添加<image>占位符
+                                turn["content"] = "<image> " + content
+                        elif isinstance(content, list):
+                            # 检查是否已有图像类型元素
+                            has_image_element = any(item["type"] == "image" for item in content)
+                            if not has_image_element:
+                                # 在开头添加图像类型元素
+                                turn["content"] = [{"type": "image"}] + content
+                        break  # 处理第一个用户消息后退出
         
-        return processed_batch
+        # 原有处理逻辑（分词等）
+        return super().preprocess_dataset(examples)
 
     @abstractmethod
     def print_data_example(self, example: dict[str, list[int]]) -> None:

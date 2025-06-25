@@ -261,12 +261,6 @@ def _get_preprocessed_dataset(
         **kwargs,
     )
 
-    # 过滤无效样本
-    dataset = dataset.filter(lambda example: example["valid_flag"])
-
-    # 移除临时标记
-    dataset = dataset.remove_columns(["valid_flag"])
-
     if training_args.should_log:
         try:
             print("eval example:" if is_eval else "training example:")
