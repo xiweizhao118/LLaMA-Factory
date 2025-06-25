@@ -228,19 +228,29 @@ def _get_dataset_processor(
 
 # 首先定义清洗函数
 def clean_dataset(example):
-    image = example.get("image", [])
-    user_message = example["question"]
+    # 创建一个新字典以避免修改原始数据（重要！）
+    cleaned_example = {key: value for key, value in example.items()}
     
-    # 检查用户消息并添加占位符
-    if image:  # 有图像时才处理
-        if user_message:
-            # 只处理第一个用户消息
-            content = user_message
+    # 检查是否有图像
+    if "_images" in cleaned_example and cleaned_example["_images"]:
+        # 检查是否有用户消息
+        if "_prompt" in cleaned_example and cleaned_example["_prompt"]:
+            # 获取第一个用户消息
+            user_prompt = cleaned_example["_prompt"][0]
             
-            # 处理字符串格式
-            if isinstance(content, str):
-                if "<image>" not in content:
-                    example["question"] = "<image> " + content
+            # 创建用户消息的副本
+            new_prompt = dict(user_prompt)
+            content = new_prompt["content"]
+            
+            # 检查是否已包含图像占位符
+            if not any(marker in content for marker in ["<image>", "<picture>", "<img>"]):
+                # 在用户消息开头添加<image>占位符
+                new_prompt["content"] = "<image> " + content
+                
+                # 更新第一个用户消息
+                cleaned_example["_prompt"][0] = new_prompt
+    
+    return cleaned_example
     
     return example
 
