@@ -1469,6 +1469,7 @@ class Qwen2VLPlugin(BasePlugin):
         image_processor: BaseImageProcessor = getattr(processor, "image_processor")
 
         merge_length: int = getattr(image_processor, "merge_size") ** 2
+        # merge_length = 14 ** 2
         if self.expand_mm_tokens:
             mm_inputs = self._get_mm_inputs(images, videos, audios, processor)
             image_grid_thw = mm_inputs.get("image_grid_thw", [])
@@ -1481,6 +1482,7 @@ class Qwen2VLPlugin(BasePlugin):
             content = message["content"]
             while IMAGE_PLACEHOLDER in content:
                 image_seqlen = image_grid_thw[num_image_tokens].prod() // merge_length if self.expand_mm_tokens else 1
+                # image_seqlen = 1
                 content = content.replace(
                     IMAGE_PLACEHOLDER, f"<|vision_start|>{self.image_token * image_seqlen}<|vision_end|>", 1
                 )

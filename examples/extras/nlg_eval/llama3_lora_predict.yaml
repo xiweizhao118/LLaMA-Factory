@@ -2,18 +2,18 @@
 # For faster inference, we recommend to use `scripts/vllm_infer.py`.
 
 ### model
-model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
-adapter_name_or_path: saves/llama3-8b/lora/sft
+model_name_or_path: llava-hf/llava-1.5-7b-hf
+adapter_name_or_path: saves/llava1_6-7b/lora/orpo
 trust_remote_code: true
 
 ### method
-stage: sft
-do_predict: true
+stage: dpo
+do_predict: True
 finetuning_type: lora
 
 ### dataset
-eval_dataset: identity,alpaca_en_demo
-template: llama3
+eval_dataset: rlaif_v
+template: llava
 cutoff_len: 2048
 max_samples: 50
 overwrite_cache: true
@@ -21,11 +21,11 @@ preprocessing_num_workers: 16
 dataloader_num_workers: 4
 
 ### output
-output_dir: saves/llama3-8b/lora/predict
+output_dir: saves/llava1_6-7b/lora/predict
 overwrite_output_dir: true
-report_to: none  # choices: [none, wandb, tensorboard, swanlab, mlflow]
+report_to: wandb  # choices: [none, wandb, tensorboard, swanlab, mlflow]
 
 ### eval
 per_device_eval_batch_size: 1
-predict_with_generate: true
+predict_with_generate: False
 ddp_timeout: 180000000

@@ -1,6 +1,6 @@
 ### model
-model_name_or_path: meta-llama/Meta-Llama-3-8B-Instruct
-adapter_name_or_path: saves/llama3-8b/lora/sft
+model_name_or_path: llava-hf/llava-1.5-7b-hf
+adapter_name_or_path: saves/llava1_6-7b/lora/orpo
 trust_remote_code: true
 
 ### method
@@ -13,7 +13,7 @@ lang: en
 n_shot: 5
 
 ### output
-save_dir: saves/llama3-8b/lora/eval
+save_dir: saves/llava1_6-7b/lora/eval
 
 ### eval
-batch_size: 4
+batch_size: 2

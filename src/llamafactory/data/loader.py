@@ -251,8 +251,6 @@ def clean_dataset(example):
                 cleaned_example["_prompt"][0] = new_prompt
     
     return cleaned_example
-    
-    return example
 
 def _get_preprocessed_dataset(
     dataset: Optional[Union["Dataset", "IterableDataset"]],
