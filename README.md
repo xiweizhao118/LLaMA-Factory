@@ -10,7 +10,7 @@ Note that the important params are num_train_epochs, output_dir, max_samples.
 
 
 ### 2. Training command
-'''bash
+'''
 llamafactory-cli train examples/train_lora/llava1_6_lora_orpo.yaml
 '''
 
@@ -19,7 +19,7 @@ First, modify the merge config file 'examples/merge_lora/llava1_6_lora_orpo.yaml
 Note that the important params are adapter_name_or_path, export_dir.
 
 Second, run the command below:
-'''bash
+'''
 llamafactory-cli export examples/merge_lora/llava1_6_lora_orpo.yaml
 '''
 
