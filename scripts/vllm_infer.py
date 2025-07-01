@@ -112,7 +112,7 @@ def vllm_infer(
     llm = LLM(**engine_args)
 
     # load datasets
-    dataset_module = get_dataset(template_obj, model_args, data_args, training_args, "ppo", **tokenizer_module)
+    dataset_module = get_dataset(template_obj, model_args, data_args, training_args, "dpo", **tokenizer_module)
     train_dataset = dataset_module["train_dataset"]
 
     sampling_params = SamplingParams(

@@ -2,12 +2,12 @@
 
 ### model
 model_name_or_path: llava-hf/llava-1.5-7b-hf
-adapter_name_or_path: saves/llava1_6-7b/lora/orpo
+adapter_name_or_path: saves/llava1_6-7b/lora/orpo/v5
 template: llava
 trust_remote_code: true
 
 ### export
-export_dir: output/llava1_7b_lora_orpo
+export_dir: output/llava1_7b_lora_orpo/v5
 export_size: 5
 export_device: auto  # choices: [cpu, auto]
 export_legacy_format: false
